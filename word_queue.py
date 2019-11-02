@@ -3,10 +3,15 @@ import random
 
 
 class WordQueue:
-    def __init__(self, lexicon, capacity=10):
-        self.lexicon = lexicon
+    def __init__(self, lexicon, capacity=9):
+        if isinstance(lexicon, str):
+            with open(lexicon, "r") as f:
+                self.lexicon = [line.strip() for line in f]
+        else:
+            self.lexicon = list(lexicon)
+
         self.queue = collections.deque(
-            random.choices(lexicon, k=capacity), maxlen=capacity
+            random.choices(self.lexicon, k=capacity), maxlen=capacity
         )
 
     def _sample(self):

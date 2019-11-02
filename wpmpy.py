@@ -1,3 +1,4 @@
+import argparse
 import curses
 import curses.ascii
 
@@ -10,12 +11,13 @@ NEWLINE = 10
 CTRL_K = 11
 SPACE = 32
 BACKSPACES = (curses.ascii.BS, curses.ascii.DEL, curses.KEY_BACKSPACE)
-LEXICON = ("hello", "world", "my", "name", "jeff")
 
 
 class Runner:
     performance_monitor = PerformanceMonitor()
-    word_queue = WordQueue(LEXICON)
+
+    def __init__(self, lexicon):
+        self.word_queue = WordQueue(lexicon)
 
     def report_performance(self):
         print(self.performance_monitor)
@@ -89,6 +91,16 @@ class Runner:
 
 
 if __name__ == "__main__":
-    runner = Runner()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-l",
+        "--lexicon",
+        type=str,
+        help="Path to a list of words.",
+        default="top1000.txt",
+    )
+    args = parser.parse_args()
+
+    runner = Runner(args.lexicon)
     curses.wrapper(runner.main)
     runner.report_performance()
