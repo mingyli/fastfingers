@@ -3,34 +3,42 @@ import random
 
 
 class WordQueue:
-    def __init__(self, lexicon, capacity=9):
+    NUM_ROWS = 3
+
+    def __init__(self, lexicon, capacity):
         if isinstance(lexicon, str):
             with open(lexicon, "r") as f:
                 self.lexicon = [line.strip() for line in f]
         else:
             self.lexicon = list(lexicon)
+        self.capacity = capacity
 
-        self.queue = collections.deque(
-            random.choices(self.lexicon, k=capacity), maxlen=capacity
+        self.row_queue = collections.deque(
+            [
+                ["" for _ in range(self.capacity)],
+                self._sample_row(),
+                self._sample_row(),
+            ],
+            maxlen=self.NUM_ROWS,
         )
 
-    def _sample(self):
-        return random.choice(self.lexicon)
+    def _sample_row(self):
+        return random.choices(self.lexicon, k=self.capacity)
 
-    def proceed(self):
-        self.queue.append(self._sample())
+    def prev_row(self):
+        return self.row_queue[0]
+
+    def curr_row(self):
+        return self.row_queue[1]
+
+    def next_row(self):
+        return self.row_queue[2]
+
+    def advance(self):
+        self.row_queue.append(self._sample_row())
 
     def __str__(self):
-        return " ".join(self.queue)
-
-    def front(self):
-        return self.queue[0]
-
-    def common_prefix(self, s2):
-        index = 0
-        s1 = str(self)
-        while index < min(len(s1), len(s2)):
-            if s1[index] != s2[index]:
-                break
-            index += 1
-        return s1[:index], s1[index:]
+        prev_row = " ".join(self.prev_row())
+        curr_row = " ".join(self.curr_row())
+        next_row = " ".join(self.next_row())
+        return f"{prev_row}\n{curr_row}\n{next_row}"
