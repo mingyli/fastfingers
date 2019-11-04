@@ -12,23 +12,10 @@ class TextField(curses.textpad.Textbox):
     """
 
     def gather(self):
-        result = []
-        self._update_max_yx()
         old_y, old_x = self.win.getyx()
-        for y in range(self.maxy + 1):
-            self.win.move(y, 0)
-            stop = self._end_of_line(y)
-            if stop == 0 and self.stripspaces:
-                continue
-            for x in range(self.maxx + 1):
-                if self.stripspaces and x > stop:
-                    break
-                ch = self.win.inch(y, x)
-                result.append(chr(curses.ascii.ascii(ch)))
-            if self.maxy > 0:
-                result.append("\n")
+        result = super().gather()
         self.win.move(old_y, old_x)
-        return "".join(result)
+        return result
 
     def edit(self, validate=None, postprocess=None):
         while True:
