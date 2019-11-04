@@ -1,6 +1,7 @@
 import argparse
 import curses
 import curses.ascii
+import threading
 
 from text_field import TextField
 from word_queue import WordQueue
@@ -35,14 +36,7 @@ class Runner:
 
     def render_performance_window(self):
         self.performance_window.erase()
-        self.performance_window.addstr(
-            f"""
-            Correct:   {self.performance_monitor.correct}
-            Attempted: {self.performance_monitor.attempted}
-            Accuracy:  {self.performance_monitor.accuracy}
-            WPM:       {self.performance_monitor.wpm}
-        """
-        )
+        self.performance_window.addstr(str(self.performance_monitor))
         self.performance_window.refresh()
 
     def render_display_window(self, contents=""):
@@ -99,14 +93,12 @@ class Runner:
                 self.history = []
 
             self.render_display_window()
-            self.render_performance_window()
 
             # Move cursor to front and clear line.
             self.box.do_command(CTRL_A)
             self.box.do_command(CTRL_K)
         else:
             self.render_display_window(contents=contents)
-            self.render_performance_window()
 
     def init_windows(self, stdscr, margin=4):
         rows, cols = stdscr.getmaxyx()
@@ -129,10 +121,11 @@ class Runner:
         self.display_window.refresh()
 
         self.box = TextField(self.entry_window)
+        timer = RepeatTimer(0.1, self.render_performance_window)
 
         _ = stdscr.getch()
         self.render_display_window()
-        self.render_performance_window()
+        timer.start()
         self.title_window.addstr("Ctrl-G to exit.")
         self.title_window.refresh()
 
@@ -140,6 +133,13 @@ class Runner:
             _ = self.box.edit(
                 validate=self.validator, postprocess=self.postprocessor
             )
+        timer.cancel()
+
+
+class RepeatTimer(threading.Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
 
 
 if __name__ == "__main__":
