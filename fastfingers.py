@@ -108,11 +108,11 @@ class Runner:
             self.render_display_window(contents=contents)
             self.render_performance_window()
 
-    def init_windows(self, stdscr):
+    def init_windows(self, stdscr, margin=4):
         rows, cols = stdscr.getmaxyx()
         self.title_window = stdscr.subwin(1, cols, 0, 0)
-        self.display_window = stdscr.subwin(2, cols, 3, 0)
-        self.entry_window = stdscr.subwin(1, cols, 6, 0)
+        self.display_window = stdscr.subwin(2, cols - margin, 3, margin)
+        self.entry_window = stdscr.subwin(1, cols - margin, 6, margin)
         self.performance_window = stdscr.subwin(8, cols, 10, 0)
 
     def init_colors(self):
@@ -123,7 +123,7 @@ class Runner:
         self.init_windows(stdscr)
         self.init_colors()
 
-        self.display_window.addstr("wpmpy", curses.A_BOLD)
+        self.display_window.addstr("fastfingers", curses.A_BOLD)
         self.display_window.addstr("\n")
         self.display_window.addstr("Hit a key to begin.")
         self.display_window.refresh()
