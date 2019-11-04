@@ -149,7 +149,7 @@ if __name__ == "__main__":
         "--lexicon",
         type=str,
         help="Path to a list of words.",
-        default="top1000.txt",
+        default="lexicon/top1000.txt",
     )
     parser.add_argument(
         "--num_words",
