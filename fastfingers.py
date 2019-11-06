@@ -1,15 +1,16 @@
 import argparse
 import curses
 import curses.ascii
+from typing import List
 
 from text_field import TextField
 from word_queue import WordQueue
 from performance import PerformanceMonitor
 
-CTRL_A = 1
-NEWLINE = 10
-CTRL_K = 11
-SPACE = 32
+CTRL_A: int = 1
+NEWLINE: int = 10
+CTRL_K: int = 11
+SPACE: int = 32
 BACKSPACES = (curses.ascii.BS, curses.ascii.DEL, curses.KEY_BACKSPACE)
 
 
@@ -23,14 +24,17 @@ def common_prefix(s1, s2):
 
 
 class Runner:
-    performance_monitor = PerformanceMonitor()
+    performance_monitor: PerformanceMonitor = PerformanceMonitor()
+    capacity: int
+    word_queue: WordQueue
+    history: List[str]
 
     def __init__(self, lexicon, num_words):
         self.capacity = num_words
         self.word_queue = WordQueue(lexicon, num_words)
         self.history = []
 
-    def performance_report(self):
+    def performance_report(self) -> str:
         return str(self.performance_monitor)
 
     def render_performance_window(self):
@@ -45,7 +49,7 @@ class Runner:
         )
         self.performance_window.refresh()
 
-    def render_display_window(self, contents=""):
+    def render_display_window(self, contents: str = ""):
         self.display_window.erase()
 
         for i in range(len(self.word_queue.curr_row())):
@@ -77,10 +81,10 @@ class Runner:
 
         self.display_window.refresh()
 
-    def curr_position(self):
+    def curr_position(self) -> int:
         return len(self.history)
 
-    def validator(self, keystroke):
+    def validator(self, keystroke: int) -> int:
         if keystroke in (SPACE, NEWLINE):
             return SPACE
         elif keystroke in BACKSPACES:
@@ -88,7 +92,7 @@ class Runner:
         else:
             return keystroke
 
-    def postprocessor(self, contents, keystroke):
+    def postprocessor(self, contents: str, keystroke: int):
         if keystroke in (SPACE, NEWLINE):
             expected = self.word_queue.curr_row()[self.curr_position()]
             self.performance_monitor.record(contents, expected)
